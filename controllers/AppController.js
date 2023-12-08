@@ -5,17 +5,13 @@ import dbClient from '../utils/db';
 
 class AppController {
   static getStatus(req, res) {
-    if (redisClient.isAlive() && dbClient.isAlive()) {
-      return res.status(200).json({ redis: true, db: true });
-    }
-    return null;
+    res.status(200).json({ redis: redisClient.isAlive(), db: dbClient.isAlive() });
   }
 
   static async getStats(req, res) {
     const usersCount = await dbClient.nbUsers();
     const filesCount = await dbClient.nbFiles();
-
-    return res.status(200).json({ users: usersCount, files: filesCount });
+    res.status(200).json({ users: usersCount, files: filesCount });
   }
 }
 

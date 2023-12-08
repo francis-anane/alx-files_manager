@@ -5,37 +5,34 @@ class UsersController {
   static postNew(req, res) {
     const { email, password } = req.body;
     if (!email) {
-      return res.status(400).json({ error: 'Missing email' });
+      res.status(400).json({ error: 'Missing email' });
+      return;
     }
     if (!password) {
-      return res.status(400).json({ error: 'Missing password' });
+      res.status(400).json({ error: 'Missing password' });
+      return;
     }
 
     const users = dbClient.db.collection('users');
     users.findOne({ email }, (err, user) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).json({ error: 'Internal Server Error' });
-      }
-
       if (user) {
-        return res.status(400).json({ error: 'Already exists' });
+        res.status(400).json({ error: 'Already exists' });
+      } else {
+        const hashPassword = sha1(password);
+        users.insertOne({ email, password: hashPassword })
+          .then((result) => {
+            res.status(201).json({ id: result.insertedId, email });
+          })
+          .catch((err) => {
+            console.error(err);
+          });
       }
-      const hashPassword = sha1(password);
-      users.insertOne({ email, password: hashPassword })
-        .then((result) => {
-          res.status(201).json({ email, id: result.insertedId });
-        })
-        .catch((err) => {
-          console.error(err);
-          res.status(500).json({ error: 'Internal Server Error' });
-        });
-
-      return null;
     });
-    return null;
   }
 
+  static async getMe() {
+
+  }
 }
 
 export default UsersController;
