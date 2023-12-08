@@ -35,11 +35,11 @@ class UsersController {
     });
     return null;
   }
-  
-  static async getMe(req, res) {
-    // TODO: Retrieve user based on the token
-    // Return 401 if token not found, otherwise return user object (email and id only)
-  }
+
+//   static async getMe(req, res) {
+//     // TODO: Retrieve user based on the token
+//     // Return 401 if token not found, otherwise return user object (email and id only)
+//   }
 }
 
 export default UsersController;
