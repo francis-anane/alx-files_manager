@@ -1,23 +1,44 @@
-// AppController.js
-
+import sha1 from 'sha1';
 import dbClient from '../utils/db';
 
 class UsersController {
   static postNew(req, res) {
     const { email, password } = req.body;
     if (!email) {
-      res.status(400).json({ error: 'Missing email' });
+      return res.status(400).json({ error: 'Missing email' });
     }
     if (!password) {
-      res.status(400).json({ error: 'Missing password' });
+      return res.status(400).json({ error: 'Missing password' });
     }
 
     const users = dbClient.db.collection('users');
     users.findOne({ email }, (err, user) => {
-      if (user) {
-        res.status(400).json({ error: 'Already exist' });
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: 'Internal Server Error' });
       }
+
+      if (user) {
+        return res.status(400).json({ error: 'Already exists' });
+      }
+      const hashPassword = sha1(password);
+      users.insertOne({ email, password: hashPassword })
+        .then((result) => {
+          res.status(201).json({ email, id: result.insertedId });
+        })
+        .catch((err) => {
+          console.error(err);
+          res.status(500).json({ error: 'Internal Server Error' });
+        });
+
+      return null;
     });
+    return null;
+  }
+  
+  static async getMe(req, res) {
+    // TODO: Retrieve user based on the token
+    // Return 401 if token not found, otherwise return user object (email and id only)
   }
 }
 
