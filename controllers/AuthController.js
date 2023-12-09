@@ -10,7 +10,7 @@ class AuthController {
     const credentials = Buffer.from(authHeader.slice('Basic '.length), 'base64').toString('ascii');
     const emailAndPassword = credentials.split(':');
     if (emailAndPassword.length !== 2) {
-      response.status(401).json({ error: 'Unauthorized' });
+      res.status(401).json({ error: 'Unauthorized' });
       return;
     }
 
