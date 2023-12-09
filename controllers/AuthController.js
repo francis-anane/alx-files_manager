@@ -6,20 +6,19 @@ import dbClient from '../utils/db';
 class AuthController {
   static async getConnect(req, res) {
     // Extract email and password from Authorization header (Basic Auth)
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Basic ')) {
-      res.status(401).json({ error: 'Unauthorized' });
+    const authHeader = req.header('Authorization');
+    const credentials = Buffer.from(authHeader.slice('Basic '.length), 'base64').toString('ascii');
+    const emailAndPassword = credentials.split(':');
+    if (emailAndPassword.length !== 2) {
+      response.status(401).json({ error: 'Unauthorized' });
       return;
     }
 
-    const credentials = Buffer.from(authHeader.slice('Basic '.length), 'base64').toString('utf-8');
-    const [email, password] = credentials.split(':');
-
-    const hashedPassword = sha1(password);
+    const email = emailAndPassword[0]; // get user email
+    const hashedPassword = sha1(emailAndPassword[1]); // hash the password
 
     // If no user found, return unauthorized
     // Otherwise, generate a token, store in Redis, and return it
-
     const users = dbClient.db.collection('users');
     users.findOne({ email, password: hashedPassword }, async (err, user) => {
       if (user) {
@@ -37,7 +36,7 @@ class AuthController {
   static async getDisconnect(req, res) {
     // Retrieve user based on the token, delete the token in Redis
     // Return 401 if token not found, otherwise return 204 with no content
-    const token = request.header('X-Token');
+    const token = req.header('X-Token');
     const redisKey = `auth_${token}`;
     const id = await redisClient.get(redisKey);
     if (id) {
