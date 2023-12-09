@@ -19,10 +19,10 @@ class AuthController {
 
     // If no user found, return unauthorized
     // Otherwise, generate a token, store in Redis, and return it
-    
+
     const users = dbClient.db.collection('users');
-    users.findOne({email, password: hashedPassword}, async (err, user) =>{
-      if(user){
+    users.findOne({ email, password: hashedPassword }, async (err, user) => {
+      if (user) {
         const token = uuidv4();
         const redisKey = `auth_${token}`;
         // Store user ID in Redis for 24 hours
@@ -32,7 +32,6 @@ class AuthController {
         res.status(401).json({ error: 'Unauthorized' });
       }
     });
-
   }
 
   static async getDisconnect(req, res) {
