@@ -57,10 +57,10 @@ class UsersController {
   static async getMe(req, res) {
     // Extracting the authentication token from the request header
     const token = req.header('X-Token');
-    const key = `auth_${token}`;
+    const rediskey = `auth_${token}`;
 
     // Retrieving the user ID from Redis based on the authentication token
-    const userId = await redisClient.get(key);
+    const userId = await redisClient.get(rediskey);
 
     // Checking if a user ID is found in Redis
     if (userId) {
